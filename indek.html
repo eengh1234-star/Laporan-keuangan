@@ -1,0 +1,1594 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Laporan Keuangan & Arus Kas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        /* Dashboard Header */
+        .dashboard-header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .dashboard-header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .dashboard-header p {
+            opacity: 0.9;
+            font-size: 1.2em;
+            position: relative;
+            z-index: 1;
+        }
+
+        .dashboard-header .company-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            display: inline-block;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Period Selector */
+        .period-section {
+            padding: 25px 30px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-bottom: 3px solid #667eea;
+        }
+
+        .period-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            align-items: end;
+        }
+
+        .period-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .period-group label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+
+        .period-group input,
+        .period-group select {
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s;
+        }
+
+        .period-group input:focus,
+        .period-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        .period-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-period {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .btn-period-save {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+        }
+
+        .btn-period-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+        }
+
+        .btn-period-load {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+        }
+
+        .btn-period-load:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn-period-clear {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+
+        .btn-period-clear:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        /* Summary Cards Dashboard */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            padding: 30px;
+            background: white;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            border-left: 6px solid;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.8) 0%, transparent 100%);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .card.income {
+            border-left-color: #27ae60;
+            background: linear-gradient(135deg, #ffffff 0%, #e8f8f0 100%);
+        }
+
+        .card.expense {
+            border-left-color: #e74c3c;
+            background: linear-gradient(135deg, #ffffff 0%, #fdedec 100%);
+        }
+
+        .card.balance {
+            border-left-color: #3498db;
+            background: linear-gradient(135deg, #ffffff 0%, #ebf5fb 100%);
+        }
+
+        .card-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .card h3 {
+            color: #7f8c8d;
+            font-size: 0.95em;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .card .amount {
+            font-size: 2.2em;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .card.income .amount {
+            color: #27ae60;
+        }
+
+        .card.expense .amount {
+            color: #e74c3c;
+        }
+
+        .card.balance .amount {
+            color: #3498db;
+        }
+
+        /* Logo & Title Section */
+        .logo-section {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .logo-section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+            font-size: 1.3em;
+        }
+
+        .logo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            align-items: center;
+        }
+
+        .logo-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-group label {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+
+        .logo-group input,
+        .logo-group select {
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .logo-group input:focus,
+        .logo-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .logo-preview {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: white;
+            border: 2px dashed #e0e0e0;
+            border-radius: 8px;
+            min-height: 100px;
+        }
+
+        .logo-preview img {
+            max-width: 150px;
+            max-height: 100px;
+            object-fit: contain;
+        }
+
+        .logo-preview.empty {
+            color: #95a5a6;
+            font-style: italic;
+        }
+
+        /* Report Title Section */
+        .report-title-section {
+            padding: 30px;
+            background: white;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .report-title-section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+            font-size: 1.3em;
+        }
+
+        .title-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .title-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .title-group label {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+
+        .title-group input {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .title-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .report-preview {
+            text-align: center;
+            padding: 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            margin-top: 20px;
+            color: white;
+        }
+
+        .report-preview h2 {
+            color: white;
+            font-size: 1.6em;
+            margin-bottom: 10px;
+            border: none;
+        }
+
+        .report-preview p {
+            color: rgba(255,255,255,0.9);
+            font-size: 1.1em;
+        }
+
+        /* Input Form */
+        .form-section {
+            padding: 30px;
+            background: white;
+        }
+
+        .form-section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+            font-size: 1.3em;
+        }
+
+        .form-section h2.editing {
+            border-bottom-color: #f39c12;
+            color: #f39c12;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+        }
+
+        .btn-update {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+        }
+
+        .btn-update:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(243, 156, 18, 0.4);
+        }
+
+        .btn-cancel {
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(149, 165, 166, 0.4);
+        }
+
+        .btn-reset {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+
+        .btn-reset:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .btn-excel {
+            background: linear-gradient(135deg, #27ae60 0%, #16a085 100%);
+            color: white;
+        }
+
+        .btn-excel:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+        }
+
+        .btn-print {
+            background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%);
+            color: white;
+        }
+
+        .btn-print:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(142, 68, 173, 0.4);
+        }
+
+        .btn-edit {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+            padding: 8px 15px;
+            font-size: 0.85em;
+        }
+
+        .btn-edit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(243, 156, 18, 0.4);
+        }
+
+        .btn-delete {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 8px 15px;
+            font-size: 0.85em;
+        }
+
+        .btn-delete:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(231, 76, 60, 0.4);
+        }
+
+        /* Transaction Table */
+        .table-section {
+            padding: 30px;
+            overflow-x: auto;
+            background: white;
+        }
+
+        .table-section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+            font-size: 1.3em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+            border: 1px solid #e0e0e0;
+        }
+
+        th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85em;
+            letter-spacing: 0.5px;
+        }
+
+        tbody tr:hover {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        tbody tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .amount-income {
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .amount-expense {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px;
+            color: #7f8c8d;
+        }
+
+        .empty-state i {
+            font-size: 4em;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .notification.success {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+        }
+
+        .notification.error {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+
+        .notification.warning {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        }
+
+        .notification.info {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Storage Info */
+        .storage-info {
+            padding: 20px 30px;
+            background: linear-gradient(135deg, #e8f8f0 0%, #d5f5e3 100%);
+            border-top: 2px solid #27ae60;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .storage-info p {
+            color: #27ae60;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .storage-info .status {
+            padding: 8px 15px;
+            background: white;
+            border-radius: 20px;
+            color: #27ae60;
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+
+        /* ============================================ */
+        /* PRINT STYLES - PERFECT BORDERS FOR PDF */
+        /* ============================================ */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+                margin: 0;
+            }
+
+            .container {
+                box-shadow: none;
+                border-radius: 0;
+                margin: 0;
+                max-width: 100%;
+            }
+
+            /* Hide all sections except print header and table */
+            .dashboard-header,
+            .period-section,
+            .logo-section,
+            .report-title-section,
+            .summary-cards,
+            .form-section,
+            .button-group,
+            .action-buttons,
+            .btn-edit,
+            .btn-delete,
+            .storage-info,
+            .period-actions {
+                display: none !important;
+            }
+
+            /* Show print header */
+            .print-header {
+                display: block !important;
+                text-align: center;
+                padding: 20px 30px;
+                border-bottom: 3px solid #000;
+                margin-bottom: 20px;
+                page-break-after: avoid;
+            }
+
+            .print-header h1 {
+                color: #000;
+                font-size: 22px;
+                margin-bottom: 8px;
+                font-weight: bold;
+                text-transform: uppercase;
+            }
+
+            .print-header p {
+                color: #333;
+                font-size: 14px;
+                margin: 4px 0;
+            }
+
+            /* Show table section */
+            .table-section {
+                display: block !important;
+                padding: 15px 20px;
+                page-break-inside: avoid;
+            }
+
+            .table-section h2 {
+                display: block !important;
+                color: #000;
+                border-bottom: 2px solid #000;
+                margin-bottom: 15px;
+                font-size: 16px;
+                font-weight: bold;
+                text-transform: uppercase;
+            }
+
+            /* TABLE WITH PERFECT BORDERS */
+            table {
+                border: 3px solid #000 !important;
+                border-collapse: collapse !important;
+                box-shadow: none;
+                width: 100%;
+                page-break-inside: auto;
+            }
+
+            thead {
+                background: #000 !important;
+                color: #fff !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            th {
+                border: 2px solid #000 !important;
+                color: #fff !important;
+                padding: 10px 8px;
+                font-size: 11px;
+                font-weight: bold;
+                text-transform: uppercase;
+                text-align: center;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            td {
+                border: 2px solid #000 !important;
+                color: #000;
+                padding: 8px 6px;
+                font-size: 11px;
+                text-align: left;
+            }
+
+            /* Center align specific columns */
+            td:nth-child(1),
+            td:nth-child(2),
+            td:nth-child(3) {
+                text-align: center;
+            }
+
+            /* Right align amount columns */
+            td:nth-child(5),
+            td:nth-child(6),
+            td:nth-child(7) {
+                text-align: right;
+                font-weight: bold;
+            }
+
+            /* Alternating rows - white for print */
+            tbody tr:hover,
+            tbody tr:nth-child(even),
+            tbody tr:nth-child(odd) {
+                background: #fff !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            /* Amount colors - black for print */
+            .amount-income,
+            .amount-expense {
+                color: #000;
+                font-weight: bold;
+            }
+
+            /* Table row break settings */
+            tr {
+                page-break-inside: avoid;
+                page-break-after: auto;
+            }
+
+            /* Footer info for print */
+            .print-footer {
+                display: block !important;
+                text-align: center;
+                padding: 15px;
+                border-top: 2px solid #000;
+                margin-top: 20px;
+                font-size: 11px;
+                color: #666;
+            }
+        }
+
+        /* Print Header & Footer (Hidden by default) */
+        .print-header,
+        .print-footer {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header h1 {
+                font-size: 1.8em;
+            }
+
+            .card .amount {
+                font-size: 1.5em;
+            }
+
+            .form-grid,
+            .logo-grid,
+            .title-grid,
+            .period-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .storage-info {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Dashboard Header -->
+        <div class="dashboard-header">
+            <h1>💰 Aplikasi Laporan Keuangan</h1>
+            <p>LAPORAN ARUS KAS & KEUANGAN</p>
+            <div class="company-info">
+                <span id="displayCompany">🏢 PT. Perusahaan Anda</span>
+            </div>
+        </div>
+
+        <!-- Period Selector -->
+        <div class="period-section">
+            <h2 style="color: #2c3e50; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 3px solid #667eea; font-size: 1.3em;">📅 Pengelola Periode</h2>
+            <div class="period-grid">
+                <div class="period-group">
+                    <label for="periodName">📛 Nama Periode</label>
+                    <input type="text" id="periodName" placeholder="Contoh: Januari 2025">
+                </div>
+                <div class="period-group">
+                    <label for="periodStart">📆 Tanggal Mulai</label>
+                    <input type="date" id="periodStart">
+                </div>
+                <div class="period-group">
+                    <label for="periodEnd">📆 Tanggal Akhir</label>
+                    <input type="date" id="periodEnd">
+                </div>
+                <div class="period-actions">
+                    <button type="button" class="btn-period btn-period-save" onclick="savePeriod()">
+                        💾 Simpan Periode
+                    </button>
+                    <button type="button" class="btn-period btn-period-load" onclick="loadPeriod()">
+                        📂 Load Periode
+                    </button>
+                    <button type="button" class="btn-period btn-period-clear" onclick="clearAllData()">
+                        🗑️ Hapus Semua
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logo Section -->
+        <div class="logo-section">
+            <h2>🖼️ Pengaturan Logo</h2>
+            <div class="logo-grid">
+                <div class="logo-group">
+                    <label for="logoFile">📁 Upload Logo (PNG/JPG)</label>
+                    <input type="file" id="logoFile" accept="image/png, image/jpeg, image/jpg">
+                </div>
+                <div class="logo-group">
+                    <label for="logoPosition">📍 Posisi Logo</label>
+                    <select id="logoPosition" onchange="updateLogoPosition()">
+                        <option value="left">Kiri</option>
+                        <option value="center" selected>Tengah</option>
+                        <option value="right">Kanan</option>
+                    </select>
+                </div>
+                <div class="logo-group">
+                    <label>👁️ Preview Logo</label>
+                    <div class="logo-preview empty" id="logoPreview">
+                        <span>Belum ada logo diupload</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Report Title Section -->
+        <div class="report-title-section">
+            <h2>📝 Judul Laporan</h2>
+            <div class="title-grid">
+                <div class="title-group">
+                    <label for="reportTitle">📄 Judul Laporan</label>
+                    <input type="text" id="reportTitle" placeholder="Laporan Keuangan Perusahaan" value="Laporan Keuangan & Arus Kas">
+                </div>
+                <div class="title-group">
+                    <label for="reportSubtitle">📑 Subjudul Laporan</label>
+                    <input type="text" id="reportSubtitle" placeholder="PT. Contoh Sejahtera" value="Periode Tahun 2025">
+                </div>
+                <div class="title-group">
+                    <label for="companyName">🏢 Nama Perusahaan</label>
+                    <input type="text" id="companyName" placeholder="Nama Perusahaan" value="PT. Perusahaan Anda">
+                </div>
+            </div>
+            <div class="report-preview">
+                <h2 id="previewTitle">Laporan Keuangan & Arus Kas</h2>
+                <p id="previewSubtitle">Periode Tahun 2025</p>
+            </div>
+        </div>
+
+        <!-- Summary Cards Dashboard -->
+        <div class="summary-cards">
+            <div class="card income">
+                <span class="card-icon">📈</span>
+                <h3>Total Pemasukan</h3>
+                <div class="amount" id="totalIncome">Rp 0</div>
+            </div>
+            <div class="card expense">
+                <span class="card-icon">📉</span>
+                <h3>Total Pengeluaran</h3>
+                <div class="amount" id="totalExpense">Rp 0</div>
+            </div>
+            <div class="card balance">
+                <span class="card-icon">💵</span>
+                <h3>Saldo Akhir</h3>
+                <div class="amount" id="finalBalance">Rp 0</div>
+            </div>
+        </div>
+
+        <!-- Input Form -->
+        <div class="form-section">
+            <h2 id="formTitle">📝 Input Transaksi Baru</h2>
+            <form id="transactionForm">
+                <input type="hidden" id="editIndex" value="-1">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="tanggal">📅 Tanggal</label>
+                        <input type="date" id="tanggal" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="kodeTransaksi">🔢 Kode Transaksi</label>
+                        <input type="text" id="kodeTransaksi" placeholder="TRX001" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="jenisTransaksi">📊 Jenis Transaksi</label>
+                        <select id="jenisTransaksi" required>
+                            <option value="">-- Pilih --</option>
+                            <option value="pemasukan">Pemasukan</option>
+                            <option value="pengeluaran">Pengeluaran</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="kategoriUtama">📁 Kategori Utama</label>
+                        <select id="kategoriUtama" required>
+                            <option value="">-- Pilih --</option>
+                            <option value="operasional">Operasional</option>
+                            <option value="investasi">Investasi</option>
+                            <option value="pendanaan">Pendanaan</option>
+                            <option value="lainnya">Lainnya</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="subKategori">📂 Sub Kategori</label>
+                        <select id="subKategori" required>
+                            <option value="">-- Pilih --</option>
+                            <option value="penjualan">Penjualan</option>
+                            <option value="pembelian">Pembelian</option>
+                            <option value="gaji">Gaji</option>
+                            <option value="utilities">Utilities</option>
+                            <option value="marketing">Marketing</option>
+                            <option value="lainnya">Lainnya</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="jumlah">💰 Jumlah (Rp)</label>
+                        <input type="number" id="jumlah" placeholder="0" min="0" required>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label for="uraian">📄 Uraian / Keterangan Detail</label>
+                    <textarea id="uraian" placeholder="Masukkan keterangan transaksi..." required></textarea>
+                </div>
+                <div class="button-group" id="mainButtons">
+                    <button type="submit" class="btn btn-save" id="btnSave">
+                        💾 Simpan Transaksi
+                    </button>
+                    <button type="button" class="btn btn-reset" onclick="resetForm()">
+                        🗑️ Reset Form
+                    </button>
+                    <button type="button" class="btn btn-excel" onclick="downloadExcel()">
+                        📥 Download Excel
+                    </button>
+                    <button type="button" class="btn btn-print" onclick="printPDF()">
+                        🖨️ Cetak PDF
+                    </button>
+                </div>
+                <div class="button-group" id="editButtons" style="display: none;">
+                    <button type="submit" class="btn btn-update" id="btnUpdate">
+                        ✅ Update Transaksi
+                    </button>
+                    <button type="button" class="btn btn-cancel" onclick="cancelEdit()">
+                        ❌ Batal Edit
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Transaction Table -->
+        <div class="table-section">
+            <h2>📋 Daftar Transaksi</h2>
+            <table id="transactionTable">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>📅 Tanggal</th>
+                        <th>🔢 Kode</th>
+                        <th>📄 Uraian</th>
+                        <th>📈 Pemasukan</th>
+                        <th>📉 Pengeluaran</th>
+                        <th>💵 Saldo</th>
+                        <th>⚙️ Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <tr>
+                        <td colspan="8" class="empty-state">
+                            <i>📭</i>
+                            <p>Belum ada transaksi. Silakan input transaksi baru.</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Storage Info -->
+        <div class="storage-info">
+            <p>💾 Data disimpan otomatis di browser Anda</p>
+            <div class="status" id="storageStatus">✅ Data Aktif</div>
+        </div>
+
+        <!-- Print Header (Only visible when printing) -->
+        <div class="print-header">
+            <h1 id="printTitle">Laporan Keuangan & Arus Kas</h1>
+            <p id="printSubtitle">Periode Tahun 2025</p>
+            <p id="printCompany">PT. Perusahaan Anda</p>
+            <p id="printDate">Dicetak pada: <span id="printDateValue"></span></p>
+        </div>
+
+        <!-- Print Footer (Only visible when printing) -->
+        <div class="print-footer">
+            <p>Laporan ini dibuat secara otomatis oleh Aplikasi Laporan Keuangan & Arus Kas</p>
+            <p>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</p>
+        </div>
+    </div>
+
+    <script>
+        // Data storage
+        let transactions = [];
+        let balance = 0;
+        let isEditing = false;
+        let logoData = null;
+        let currentPeriod = null;
+
+        // Format currency
+        function formatCurrency(amount) {
+            return 'Rp ' + amount.toLocaleString('id-ID');
+        }
+
+        // Format date for display
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString('id-ID', options);
+        }
+
+        // Show notification
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Save to localStorage
+        function saveToLocalStorage() {
+            const data = {
+                transactions: transactions,
+                logoData: logoData,
+                logoPosition: document.getElementById('logoPosition').value,
+                reportTitle: document.getElementById('reportTitle').value,
+                reportSubtitle: document.getElementById('reportSubtitle').value,
+                companyName: document.getElementById('companyName').value,
+                period: {
+                    name: document.getElementById('periodName').value,
+                    start: document.getElementById('periodStart').value,
+                    end: document.getElementById('periodEnd').value
+                }
+            };
+            localStorage.setItem('financialReport', JSON.stringify(data));
+            updateStorageStatus();
+        }
+
+        // Load from localStorage
+        function loadFromLocalStorage() {
+            const data = localStorage.getItem('financialReport');
+            if (data) {
+                const parsed = JSON.parse(data);
+                transactions = parsed.transactions || [];
+                logoData = parsed.logoData || null;
+                document.getElementById('logoPosition').value = parsed.logoPosition || 'center';
+                document.getElementById('reportTitle').value = parsed.reportTitle || 'Laporan Keuangan & Arus Kas';
+                document.getElementById('reportSubtitle').value = parsed.reportSubtitle || 'Periode Tahun 2025';
+                document.getElementById('companyName').value = parsed.companyName || 'PT. Perusahaan Anda';
+                
+                if (parsed.period) {
+                    document.getElementById('periodName').value = parsed.period.name || '';
+                    document.getElementById('periodStart').value = parsed.period.start || '';
+                    document.getElementById('periodEnd').value = parsed.period.end || '';
+                }
+
+                if (logoData) {
+                    updateLogoPreview();
+                }
+
+                updateReportPreview();
+                renderTable();
+                showNotification('📂 Data periode sebelumnya berhasil dimuat!', 'info');
+            }
+        }
+
+        // Update storage status
+        function updateStorageStatus() {
+            const status = document.getElementById('storageStatus');
+            const count = transactions.length;
+            status.textContent = `✅ ${count} Transaksi Tersimpan`;
+            status.style.background = count > 0 ? '#d5f5e3' : '#fadbd8';
+            status.style.color = count > 0 ? '#27ae60' : '#e74c3c';
+        }
+
+        // Save period
+        function savePeriod() {
+            saveToLocalStorage();
+            showNotification('✅ Periode berhasil disimpan! Data dapat dilanjutkan nanti.', 'success');
+        }
+
+        // Load period
+        function loadPeriod() {
+            loadFromLocalStorage();
+        }
+
+        // Clear all data
+        function clearAllData() {
+            if (confirm('⚠️ PERINGATAN!\n\nApakah Anda yakin ingin menghapus SEMUA data?\n\nData yang dihapus TIDAK dapat dikembalikan.')) {
+                localStorage.removeItem('financialReport');
+                transactions = [];
+                logoData = null;
+                resetForm();
+                document.getElementById('logoPreview').innerHTML = '<span>Belum ada logo diupload</span>';
+                document.getElementById('logoPreview').classList.add('empty');
+                document.getElementById('periodName').value = '';
+                document.getElementById('periodStart').value = '';
+                document.getElementById('periodEnd').value = '';
+                updateReportPreview();
+                renderTable();
+                updateStorageStatus();
+                showNotification('🗑️ Semua data berhasil dihapus!', 'error');
+            }
+        }
+
+        // Update summary cards
+        function updateSummary() {
+            let totalIncome = 0;
+            let totalExpense = 0;
+
+            transactions.forEach(trx => {
+                if (trx.jenis === 'pemasukan') {
+                    totalIncome += trx.jumlah;
+                } else {
+                    totalExpense += trx.jumlah;
+                }
+            });
+
+            balance = totalIncome - totalExpense;
+
+            document.getElementById('totalIncome').textContent = formatCurrency(totalIncome);
+            document.getElementById('totalExpense').textContent = formatCurrency(totalExpense);
+            document.getElementById('finalBalance').textContent = formatCurrency(balance);
+
+            document.getElementById('displayCompany').textContent = '🏢 ' + (document.getElementById('companyName').value || 'PT. Perusahaan Anda');
+        }
+
+        // Render table
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            
+            if (transactions.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="empty-state">
+                            <i>📭</i>
+                            <p>Belum ada transaksi. Silakan input transaksi baru.</p>
+                        </td>
+                    </tr>
+                `;
+                updateSummary();
+                updateStorageStatus();
+                return;
+            }
+
+            let runningBalance = 0;
+            tbody.innerHTML = '';
+
+            transactions.forEach((trx, index) => {
+                if (trx.jenis === 'pemasukan') {
+                    runningBalance += trx.jumlah;
+                } else {
+                    runningBalance -= trx.jumlah;
+                }
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${trx.tanggal}</td>
+                    <td>${trx.kode}</td>
+                    <td>${trx.uraian}</td>
+                    <td class="amount-income">${trx.jenis === 'pemasukan' ? formatCurrency(trx.jumlah) : '-'}</td>
+                    <td class="amount-expense">${trx.jenis === 'pengeluaran' ? formatCurrency(trx.jumlah) : '-'}</td>
+                    <td>${formatCurrency(runningBalance)}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-edit" onclick="editTransaction(${index})">
+                                ✏️ Edit
+                            </button>
+                            <button class="btn btn-delete" onclick="deleteTransaction(${index})">
+                                🗑️ Hapus
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            updateSummary();
+            updateStorageStatus();
+        }
+
+        // Logo upload handler
+        document.getElementById('logoFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    logoData = event.target.result;
+                    updateLogoPreview();
+                    saveToLocalStorage();
+                    showNotification('✅ Logo berhasil diupload!', 'success');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Update logo position
+        function updateLogoPosition() {
+            updateLogoPreview();
+            saveToLocalStorage();
+            showNotification('📍 Posisi logo diubah!', 'success');
+        }
+
+        // Update logo preview
+        function updateLogoPreview() {
+            const preview = document.getElementById('logoPreview');
+            const position = document.getElementById('logoPosition').value;
+
+            if (logoData) {
+                preview.innerHTML = `<img src="${logoData}" alt="Logo" style="justify-content: ${position}; display: flex;">`;
+                preview.classList.remove('empty');
+                preview.style.justifyContent = position;
+            } else {
+                preview.innerHTML = '<span>Belum ada logo diupload</span>';
+                preview.classList.add('empty');
+            }
+        }
+
+        // Update report preview
+        function updateReportPreview() {
+            document.getElementById('previewTitle').textContent = document.getElementById('reportTitle').value || 'Laporan Keuangan & Arus Kas';
+            document.getElementById('previewSubtitle').textContent = document.getElementById('reportSubtitle').value || 'Periode Tahun 2025';
+            document.getElementById('printTitle').textContent = document.getElementById('reportTitle').value || 'Laporan Keuangan & Arus Kas';
+            document.getElementById('printSubtitle').textContent = document.getElementById('reportSubtitle').value || 'Periode Tahun 2025';
+            document.getElementById('printCompany').textContent = document.getElementById('companyName').value || 'PT. Perusahaan Anda';
+            saveToLocalStorage();
+        }
+
+        document.getElementById('reportTitle').addEventListener('input', updateReportPreview);
+        document.getElementById('reportSubtitle').addEventListener('input', updateReportPreview);
+        document.getElementById('companyName').addEventListener('input', updateReportPreview);
+
+        // Form submission (Save New)
+        document.getElementById('transactionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const transaction = {
+                tanggal: document.getElementById('tanggal').value,
+                kode: document.getElementById('kodeTransaksi').value,
+                jenis: document.getElementById('jenisTransaksi').value,
+                kategori: document.getElementById('kategoriUtama').value,
+                subKategori: document.getElementById('subKategori').value,
+                jumlah: parseFloat(document.getElementById('jumlah').value),
+                uraian: document.getElementById('uraian').value
+            };
+
+            if (isEditing) {
+                const editIndex = parseInt(document.getElementById('editIndex').value);
+                transactions[editIndex] = transaction;
+                showNotification('✅ Transaksi berhasil diupdate!', 'success');
+                cancelEdit();
+            } else {
+                transactions.push(transaction);
+                showNotification('✅ Transaksi berhasil disimpan!', 'success');
+                resetForm();
+            }
+
+            renderTable();
+            saveToLocalStorage();
+        });
+
+        // Reset form
+        function resetForm() {
+            document.getElementById('transactionForm').reset();
+            document.getElementById('tanggal').valueAsDate = new Date();
+            document.getElementById('editIndex').value = '-1';
+            isEditing = false;
+            
+            document.getElementById('formTitle').textContent = '📝 Input Transaksi Baru';
+            document.getElementById('formTitle').classList.remove('editing');
+            document.getElementById('mainButtons').style.display = 'flex';
+            document.getElementById('editButtons').style.display = 'none';
+        }
+
+        // Edit transaction
+        function editTransaction(index) {
+            const trx = transactions[index];
+            
+            document.getElementById('editIndex').value = index;
+            document.getElementById('tanggal').value = trx.tanggal;
+            document.getElementById('kodeTransaksi').value = trx.kode;
+            document.getElementById('jenisTransaksi').value = trx.jenis;
+            document.getElementById('kategoriUtama').value = trx.kategori;
+            document.getElementById('subKategori').value = trx.subKategori;
+            document.getElementById('jumlah').value = trx.jumlah;
+            document.getElementById('uraian').value = trx.uraian;
+
+            isEditing = true;
+            
+            document.getElementById('formTitle').textContent = '✏️ Edit Transaksi';
+            document.getElementById('formTitle').classList.add('editing');
+            document.getElementById('mainButtons').style.display = 'none';
+            document.getElementById('editButtons').style.display = 'flex';
+
+            document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
+            showNotification('📝 Silakan edit data transaksi', 'warning');
+        }
+
+        // Cancel edit
+        function cancelEdit() {
+            resetForm();
+        }
+
+        // Delete transaction
+        function deleteTransaction(index) {
+            if (confirm('⚠️ Apakah Anda yakin ingin menghapus transaksi ini?\n\nData yang dihapus tidak dapat dikembalikan.')) {
+                transactions.splice(index, 1);
+                renderTable();
+                saveToLocalStorage();
+                showNotification('🗑️ Transaksi berhasil dihapus!', 'error');
+            }
+        }
+
+        // Download Excel - 6 KOLOM dengan BORDER SEMPURNA
+        function downloadExcel() {
+            if (transactions.length === 0) {
+                showNotification('❌ Tidak ada data untuk diunduh!', 'error');
+                return;
+            }
+
+            const title = document.getElementById('reportTitle').value || 'Laporan Keuangan';
+            const subtitle = document.getElementById('reportSubtitle').value || '';
+            const company = document.getElementById('companyName').value || '';
+            const date = new Date().toISOString().split('T')[0];
+
+            let excelContent = `
+                <html xmlns:o="urn:schemas-microsoft-com:office:office" 
+                      xmlns:x="urn:schemas-microsoft-com:office:excel" 
+                      xmlns="http://www.w3.org/TR/REC-html40">
+                <head>
+                    <meta charset="UTF-8">
+                    <style>
+                        table { border-collapse: collapse; width: 100%; }
+                        th, td { border: 2px solid #000 !important; padding: 10px 15px; text-align: left; }
+                        th { background-color: #2c3e50 !important; color: #fff !important; font-weight: bold; font-size: 13px; text-transform: uppercase; }
+                        tr:nth-child(even) { background-color: #f8f9fa; }
+                        tr:nth-child(odd) { background-color: #ffffff; }
+                        .title { text-align: center; font-size: 18px; font-weight: bold; padding: 15px; }
+                        .subtitle { text-align: center; font-size: 13px; padding: 6px; }
+                        .amount { text-align: right; font-weight: bold; }
+                        .income { color: #27ae60; }
+                        .expense { color: #e74c3c; }
+                        .total-row { background-color: #3498db !important; color: #fff !important; font-weight: bold; }
+                        .center { text-align: center; }
+                    </style>
+                </head>
+                <body>
+                    <div class="title"><strong>${title}</strong></div>
+                    <div class="subtitle">${subtitle}</div>
+                    <div class="subtitle">${company}</div>
+                    <div class="subtitle">Tanggal Export: ${date}</div>
+                    <br>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="center" style="width: 8%;">No</th>
+                                <th class="center" style="width: 15%;">Tanggal</th>
+                                <th class="center" style="width: 12%;">Kode</th>
+                                <th style="width: 28%;">Uraian</th>
+                                <th class="center" style="width: 12%;">Pemasukan (Rp)</th>
+                                <th class="center" style="width: 12%;">Pengeluaran (Rp)</th>
+                                <th class="center" style="width: 13%;">Saldo (Rp)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            let runningBalance = 0;
+            transactions.forEach((trx, index) => {
+                if (trx.jenis === 'pemasukan') {
+                    runningBalance += trx.jumlah;
+                } else {
+                    runningBalance -= trx.jumlah;
+                }
+
+                const income = trx.jenis === 'pemasukan' ? trx.jumlah.toLocaleString('id-ID') : '-';
+                const expense = trx.jenis === 'pengeluaran' ? trx.jumlah.toLocaleString('id-ID') : '-';
+
+                excelContent += `
+                    <tr>
+                        <td class="center">${index + 1}</td>
+                        <td class="center">${trx.tanggal}</td>
+                        <td class="center">${trx.kode}</td>
+                        <td>${trx.uraian}</td>
+                        <td class="amount ${trx.jenis === 'pemasukan' ? 'income' : ''}">${income}</td>
+                        <td class="amount ${trx.jenis === 'pengeluaran' ? 'expense' : ''}">${expense}</td>
+                        <td class="amount">${runningBalance.toLocaleString('id-ID')}</td>
+                    </tr>
+                `;
+            });
+
+            let totalIncome = transactions.filter(t => t.jenis === 'pemasukan').reduce((sum, t) => sum + t.jumlah, 0);
+            let totalExpense = transactions.filter(t => t.jenis === 'pengeluaran').reduce((sum, t) => sum + t.jumlah, 0);
+
+            excelContent += `
+                    <tr class="total-row">
+                        <td colspan="4" style="text-align: right; padding-right: 20px;"><strong>TOTAL</strong></td>
+                        <td class="amount">${totalIncome.toLocaleString('id-ID')}</td>
+                        <td class="amount">${totalExpense.toLocaleString('id-ID')}</td>
+                        <td class="amount">${balance.toLocaleString('id-ID')}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <br>
+            <div class="subtitle">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</div>
+            <div class="subtitle">Laporan ini dibuat secara otomatis oleh Aplikasi Laporan Keuangan</div>
+        </body>
+        </html>
+            `;
+
+            const blob = new Blob([excelContent], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `Laporan_Keuangan_${date}.xls`;
+            link.click();
+
+            showNotification('📥 File Excel berhasil diunduh dengan border sempurna!', 'success');
+        }
+
+        // Print/PDF
+        function printPDF() {
+            if (transactions.length === 0) {
+                showNotification('❌ Tidak ada data untuk dicetak!', 'error');
+                return;
+            }
+
+            document.getElementById('printDateValue').textContent = formatDate(new Date());
+            window.print();
+        }
+
+        // Set default dates
+        document.getElementById('tanggal').valueAsDate = new Date();
+        document.getElementById('periodStart').valueAsDate = new Date();
+        
+        const endDate = new Date();
+        endDate.setMonth(endDate.getMonth() + 1);
+        document.getElementById('periodEnd').valueAsDate = endDate;
+
+        // Initialize
+        loadFromLocalStorage();
+        renderTable();
+    </script>
+</body>
+</html>
